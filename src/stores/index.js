@@ -11,10 +11,9 @@ let create = text => Immutable.Map({
 
 let TodoStore = createStore({
 	listenables: Actions,
-	onCreate(todos, text) { 
-		console.log(this);
+	onCreate(todos, text) {
 		let todo = create(text);
-		return todos.set(todo.id, todo);
+		return todos.set(todo.get('id'), todo);
 	},
 	onUpdateText(todos, todo) {
 		return todos.setIn([todo.id, 'text'], todo.text);

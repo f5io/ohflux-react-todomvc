@@ -11,10 +11,10 @@ export default function createStore(obj) {
 		Object.keys(store.listenables).forEach(function(key) {
 			let listenerKey = `on${toSentenceCase(key)}`;
 			let action = store.listenables[key];
-			let content = action.map(function() {
-				return store[contentSymbol];
-			});
-			let changes = Kefir.zip([content, action]).map(([content, [...args]]) => isFunction(store[listenerKey]) && store[listenerKey](content, ...args) || content);
+			let content = action.flatMap(() => Kefir.constant(store[contentSymbol]));
+			let changes = Kefir.zip([content, action])
+				.map(([content, [...args]]) => isFunction(store[listenerKey]) && store[listenerKey](content, ...args) || content)
+				.map(content => (store[contentSymbol] = content) && store[contentSymbol]);
 			listenables.push(changes);
 		});
 	}

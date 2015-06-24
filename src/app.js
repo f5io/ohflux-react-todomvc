@@ -5,10 +5,9 @@ let todo;
 
 TodoStore.onValue(function(todos) {
 	todo = todos.toList().toJS()[0];
-	console.log(todos.toList().toJS(), todo);
+	console.log(todos.toList().toJS());
 	if (todo.text === 'hello') {
-		todo.text = 'hello2';
-		Actions.updateText(todo);
+		Actions.updateText({ id: todo.id, text: 'hello2' });
 	}
 });
 
@@ -16,5 +15,3 @@ Actions.create('hello');
 
 window.Actions = Actions;
 window.TodoStore = TodoStore;
-
-console.log(Actions, TodoStore);
