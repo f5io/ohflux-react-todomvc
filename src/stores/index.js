@@ -7,7 +7,7 @@ let create = text => Immutable.Map({
 	id: uuid(),
 	completed: false,
 	text: text
-})
+});
 
 let TodoStore = createStore({
 	listenables: Actions,
