@@ -1,31 +1,42 @@
 import Actions from '../actions';
+import Immutable from 'Immutable';
 import { createStore } from '../core';
+import { uuid } from '../utilities';
+
+let create = text => Immutable.Map({
+	id: uuid(),
+	completed: false,
+	text: text
+})
 
 let TodoStore = createStore({
 	listenables: Actions,
-	onCreate(todos) {
-		console.log('onCreate', arguments);
+	onCreate(todos, text) { 
+		console.log(this);
+		let todo = create(text);
+		return todos.set(todo.id, todo);
 	},
-	onUpdateText(todos) {
-		console.log('onUpdateText', arguments);
+	onUpdateText(todos, todo) {
+		return todos.setIn([todo.id, 'text'], todo.text);
 	},
-	onToggleComplete(todos) {
-		console.log('onToggleComplete', arguments);
+	onToggleComplete(todos, todo) {
+		return todos.setIn([todo.id, 'complete'], !todo.complete);
 	},
 	onToggleCompleteAll(todos) {
-		console.log('onToggleCompleteAll', arguments);
+		return todos.map(todo => todo.set('complete', true));
 	},
-	onDestroy(todos) {
-		console.log('onDestroy', arguments);
+	onDestroy(todos, todo) {
+		return todos.delete(todo.id);
 	},
 	onDestroyCompleted(todos) {
-		console.log('onDestroyCompleted', arguments);
+		return todos.filterNot(todo => todo.get('complete'));
 	},
 	onSetFilter(todos) {
 		console.log('onSetFilter', arguments);
 	},
+	getAll() {
+		console.log(this);
+	}
 });
-
-window.Actions = Actions;
 
 export default TodoStore;

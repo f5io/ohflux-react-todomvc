@@ -1,11 +1,12 @@
 import Immutable from 'immutable';
 import Kefir from 'kefir';
-import { isFunction, toSentenceCase } from './utilities';
+import { isFunction, toSentenceCase, inherit } from './utilities';
 
-export default function createStore(proto) {
-	var store = Object.create(proto);
+export default function createStore(obj) {
+	var store = Object.create(obj);
 	var contentSymbol = Symbol('contents');
 	store[contentSymbol] = Immutable.OrderedMap();
+	let listenables = [];
 	if (store.listenables) {
 		Object.keys(store.listenables).forEach(function(key) {
 			let listenerKey = `on${toSentenceCase(key)}`;
@@ -13,9 +14,11 @@ export default function createStore(proto) {
 			let content = action.map(function() {
 				return store[contentSymbol];
 			});
-			let changes = Kefir.zip([content, action]);
-			changes.onValue(([content, [...args]]) => isFunction(store[listenerKey]) && store[listenerKey](content, ...args));
+			let changes = Kefir.zip([content, action]).map(([content, [...args]]) => isFunction(store[listenerKey]) && store[listenerKey](content, ...args) || content);
+			listenables.push(changes);
 		});
 	}
+	let stream = Kefir.merge(listenables);
+	store = inherit(stream, store);
 	return store;
 };
