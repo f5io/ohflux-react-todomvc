@@ -7,13 +7,12 @@ export default function createStore(proto) {
 	store[contentSymbol] = Immutable.OrderedMap();
 	if (store.listenables) {
 		Object.keys(store.listenables).forEach(function(key) {
-			let content = store.listenables[key].flatMap(function() {
-				return store[contentSymbol];
-			}).toProperty(function() {
+			let action = store.listenables[key];
+			let content = action.map(function() {
 				return store[contentSymbol];
 			});
-			let changes = Kefir.zip([store.listenables[key], content]);
-			changes.onValue(([action, content]) => console.log(action, content));
+			let changes = Kefir.zip([content, action]);
+			changes.onValue(([content, [...args]]) => console.log(args, content));
 		}, store);
 	}
 	return store;
