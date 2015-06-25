@@ -14,7 +14,7 @@ let isComplete = todo => todo.get('complete');
 
 let TodoStore = createStore({
 	actions: Actions,
-	modifiers: [Actions.setFilter],
+	modifier: Actions.setFilter,
 	onCreate(todos, text) {
 		let todo = create(text);
 		return todos.set(todo.get('id'), todo);
@@ -35,7 +35,6 @@ let TodoStore = createStore({
 		return todos.filterNot(todo => todo.get('complete'));
 	},
 	setFilter(todos, filter) {
-		console.log(filter);
 		switch(filter) {
 			case Constants.FILTER_ACTIVE: return todos.filterNot(isComplete);
 			case Constants.FILTER_COMPLETE: return todos.filter(isComplete);

@@ -3,16 +3,10 @@ import Kefir from 'kefir';
 import { isFunction, toSentenceCase, inherit, flatten } from './utilities';
 
 let contentKey = Symbol('contents');
-let listenablesKey = Symbol('listenables');
-let filtersKey = Symbol('filters');
-let streamKey = Symbol('stream');
 
-function storeListenerCombinator(key, ...args) {
+function runHandler(key, ...args) {
 	let flatArgs = flatten(args);
-	if (key.startsWith('on')) {
-		flatArgs.unshift(this[contentKey]);
-	}
-	console.log(key, flatArgs);
+	flatArgs.unshift(this[contentKey]);
 	return isFunction(this[key]) && this[key](...flatArgs) || flatArgs[0];
 };
 
@@ -23,26 +17,38 @@ function diffAndStore(content) {
 	return this[contentKey];
 };
 
+function getActionByKey(key) {
+	let action = this.actions[key];
+	let listenerKey = `on${toSentenceCase(key)}`;
+	return { action, listenerKey };
+};
+
+function runHandlerAndStore({ action, listenerKey }) {
+	return action
+		.map(runHandler.bind(this, listenerKey))
+		.map(diffAndStore.bind(this));
+};
+
 export default function createStore(obj) {
 	let Store = Object.create(obj);
 	Store[contentKey] = Store.type && Store.type() || Immutable.OrderedMap();
-	Store[listenablesKey] = Object.keys(Store.actions || {})
-		.map(key => {
-			let action = Store.actions[key];
-			let listenerKey = `on${toSentenceCase(key)}`;
-			return { action, listenerKey };
-		})
-		.map(({ action, listenerKey }) => {
-			return action
-				.map(storeListenerCombinator.bind(Store, listenerKey))
-				.map(diffAndStore.bind(Store));
-		});
-	let Stream = Kefir.merge(Store[listenablesKey]);
-	let Modifiers = (Store.modifiers || []).reduce(function(stream, modifier) {
-		console.log(modifier._name);
-		return stream.map(storeListenerCombinator.bind(Store, modifier._name));
-	}, Stream);
-	console.log(Modifiers);
-	Store = inherit(Modifiers, Store);
+
+	let Actions = Object.keys(Store.actions || {})
+		.map(getActionByKey.bind(Store))
+		.map(runHandlerAndStore.bind(Store));
+
+	let Stream = Kefir.merge(Actions);
+
+	if (Store.modifier) {
+		let Modifier = Store.modifier.toProperty(() => 0);
+		Modifier.onValue(() => void 0);
+
+		Stream = Kefir.combine([Stream, Modifier], (a, b) => b)
+			.sampledBy(Stream)
+			.map(runHandler.bind(Store, Store.modifier._name))
+			.skipDuplicates();
+	}
+
+	Store = inherit(Stream, Store);
 	return Store;
 };

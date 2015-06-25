@@ -7,16 +7,17 @@ import Immutable from 'immutable';
 
 let isWorking = false;
 
+TodoStore.log('todoStore');
+
 TodoStore.onValue(function(todos) {
-	console.log(todos.size);
 	if (todos.size === 10 && !isWorking) {
 		isWorking = true;
 		let temp = todos.takeLast(4).toList().toJS();
 		temp.forEach(function(todo) {
-			console.log(todo);
 			Actions.toggleComplete(todo);
 		});
 		Actions.setFilter(Constants.FILTER_COMPLETE);
+		Actions.setFilter(Constants.FILTER_ALL);
 	}
 });
 
