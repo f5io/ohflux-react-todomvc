@@ -24,9 +24,7 @@ function getActionByKey(key) {
 };
 
 function runHandlerAndStore({ action, listenerKey }) {
-	return action
-		.map(runHandler.bind(this, listenerKey))
-		.map(diffAndStore.bind(this));
+	return action.map(runHandler.bind(this, listenerKey));
 };
 
 export default function createStore(obj) {
@@ -34,10 +32,11 @@ export default function createStore(obj) {
 	Store[contentKey] = Store.type && Store.type() || Immutable.OrderedMap();
 
 	let Actions = Object.keys(Store.actions || {})
-		.map(getActionByKey.bind(Store))
-		.map(runHandlerAndStore.bind(Store));
+		.map(getActionByKey, Store)
+		.map(runHandlerAndStore, Store);
 
-	let Stream = Kefir.merge(Actions);
+	let Stream = Kefir.merge(Actions)
+		.map(diffAndStore.bind(Store));
 
 	if (Store.modifier) {
 		let Modifier = Store.modifier.toProperty(() => 0);

@@ -7,7 +7,7 @@ import Immutable from 'immutable';
 
 let isWorking = false;
 
-TodoStore.log('todoStore');
+TodoStore.map(store => store.toList().toJS()).log('todoStore');
 
 TodoStore.onValue(function(todos) {
 	if (todos.size === 10 && !isWorking) {
