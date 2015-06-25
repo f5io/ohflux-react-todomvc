@@ -1,17 +1,31 @@
 import Actions from './actions';
 import TodoStore from './stores';
+import Constants from './constants';
 
-let todo;
+import Kefir from 'kefir';
+import Immutable from 'immutable';
+
+let isWorking = false;
 
 TodoStore.onValue(function(todos) {
-	todo = todos.toList().toJS()[0];
-	console.log(todos.toList().toJS());
-	if (todo.text === 'hello') {
-		Actions.updateText({ id: todo.id, text: 'hello2' });
+	console.log(todos.size);
+	if (todos.size === 10 && !isWorking) {
+		isWorking = true;
+		let temp = todos.takeLast(4).toList().toJS();
+		temp.forEach(function(todo) {
+			console.log(todo);
+			Actions.toggleComplete(todo);
+		});
+		Actions.setFilter(Constants.FILTER_COMPLETE);
 	}
 });
 
-Actions.create('hello');
+for (var i = 0; i < 10; i++) {
+	Actions.create(`hello${i+1}`);
+}
 
 window.Actions = Actions;
 window.TodoStore = TodoStore;
+
+window.Kefir = Kefir;
+window.Immutable = Immutable;

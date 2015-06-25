@@ -1,5 +1,6 @@
 import Actions from '../actions';
 import Immutable from 'Immutable';
+import Constants from '../constants';
 import { createStore } from '../core';
 import { uuid } from '../utilities';
 
@@ -9,8 +10,11 @@ let create = text => Immutable.Map({
 	text: text
 });
 
+let isComplete = todo => todo.get('complete');
+
 let TodoStore = createStore({
-	listenables: Actions,
+	actions: Actions,
+	modifiers: [Actions.setFilter],
 	onCreate(todos, text) {
 		let todo = create(text);
 		return todos.set(todo.get('id'), todo);
@@ -30,11 +34,13 @@ let TodoStore = createStore({
 	onDestroyCompleted(todos) {
 		return todos.filterNot(todo => todo.get('complete'));
 	},
-	onSetFilter(todos) {
-		console.log('onSetFilter', arguments);
-	},
-	getAll() {
-		console.log(this);
+	setFilter(todos, filter) {
+		console.log(filter);
+		switch(filter) {
+			case Constants.FILTER_ACTIVE: return todos.filterNot(isComplete);
+			case Constants.FILTER_COMPLETE: return todos.filter(isComplete);
+			default: return todos;
+		}
 	}
 });
 

@@ -6,6 +6,7 @@ export default function actionFactory(eventStream) {
 		let functor = (...args) => eventStream.emit(actionName, args);
 		let stream = Kefir.fromEvents(eventStream, actionName);
 		functor = inherit(stream, functor);
+		functor._name = actionName;
 		return functor;
 	}
 }
