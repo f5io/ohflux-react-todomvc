@@ -16,6 +16,7 @@ let TodoStore = createStore({
 	actions: Actions,
 	modifier: Actions.setFilter,
 	onCreate(todos, text) {
+		if (text === '') return todos;
 		let todo = create(text);
 		return todos.set(todo.get('id'), todo);
 	},

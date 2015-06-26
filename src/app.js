@@ -7,12 +7,15 @@ import Immutable from 'immutable';
 
 let isWorking = false;
 
-TodoStore.map(store => store.toList().toJS()).log('todoStore');
+TodoStore.log('todoStore');
 
-TodoStore.onValue(function(todos) {
-	if (todos.size === 10 && !isWorking) {
+TodoStore.onValue(function([ contents, modified ]) {
+	let todos = contents.toList().toJS();
+	//let filtered = modified.toList().toJS();
+	console.log(todos.length);
+	if (contents.size === 10 && !isWorking) {
 		isWorking = true;
-		let temp = todos.takeLast(4).toList().toJS();
+		let temp = contents.takeLast(4).toList().toJS();
 		temp.forEach(function(todo) {
 			Actions.toggleComplete(todo);
 		});
@@ -30,3 +33,8 @@ window.TodoStore = TodoStore;
 
 window.Kefir = Kefir;
 window.Immutable = Immutable;
+
+// import React from 'react';
+// import { App } from './components';
+
+// React.render(<App/>, document.querySelector('div[app]'));

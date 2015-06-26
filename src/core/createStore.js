@@ -36,17 +36,24 @@ export default function createStore(obj) {
 		.map(runHandlerAndStore, Store);
 
 	let Stream = Kefir.merge(Actions)
-		.map(diffAndStore.bind(Store));
+		.skipDuplicates()
+		.map(diffAndStore.bind(Store))
+		.map(contents => [contents]);
 
-	if (Store.modifier) {
-		let Modifier = Store.modifier.toProperty(() => 0);
-		Modifier.onValue(() => void 0);
+	let Modifier;
+	// if (Store.modifier) {
+	// 	Modifier = Store.modifier.toProperty(() => 0)
+	// 		.sampledBy(Stream)
+	// 		.map(runHandler.bind(Store, Store.modifier._name));
 
-		Stream = Kefir.combine([Stream, Modifier], (a, b) => b)
-			.sampledBy(Stream)
-			.map(runHandler.bind(Store, Store.modifier._name))
-			.skipDuplicates();
-	}
+	// 	// Stream = Kefir.combine([Stream, Modifier], (a, b) => b)
+	// 	// 	.sampledBy(Stream)
+	// 	// 	.map(runHandler.bind(Store, Store.modifier._name))
+	// 	// 	.skipDuplicates();
+	// }
+
+	// Stream = Kefir.combine([Stream, (Modifier || Stream)])
+		//.map(([ contents, modified ]) => ({ contents, modified }));
 
 	Store = inherit(Stream, Store);
 	return Store;
