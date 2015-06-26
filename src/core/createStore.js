@@ -4,37 +4,27 @@ import { isFunction, toSentenceCase, inherit, flatten } from './utilities';
 
 let contentKey = Symbol('contents');
 
-function runHandler(key, ...args) {
-	let flatArgs = flatten(args);
-	flatArgs.unshift(this[contentKey]);
-	return isFunction(this[key]) && this[key](...flatArgs) || flatArgs[0];
-};
+function actionsToStreams(actions = {}) {
+	return Object.keys(actions).map(key => actions[key]);
+}
 
-function diffAndStore(content) {
-	if (!Immutable.is(this[contentKey], content)) {
-		this[contentKey] = content;
-	}
-	return this[contentKey];
-};
+function mutateOrPassthrough([context, actionName, content, ...rest]) {
+	let handler = context[`on${toSentenceCase(actionName)}`];
+	return isFunction(handler) && [content, handler(content, ...rest)] || [content, content];
+}
 
-function getActionByKey(key) {
-	let action = this.actions[key];
-	let listenerKey = `on${toSentenceCase(key)}`;
-	return { action, listenerKey };
-};
-
-function runHandlerAndStore({ action, listenerKey }) {
-	return action.map(runHandler.bind(this, listenerKey));
-};
+function diff([currentState, nextState]) {
+	return !Immutable.is(currentState, nextState);
+}
 
 export default function createStore(obj) {
 	let Store = Object.create(obj);
-	Store[contentKey] = Store.type && Store.type() || Immutable.OrderedMap();
+	let Content = Store.type && Store.type() || Immutable.OrderedMap();
+	let ContentStream = Kefir.stream(emitter => emitter.emit(Content));
 
-	let Actions = Object.keys(Store.actions || {})
-		.map(getActionByKey, Store)
-		.map(runHandlerAndStore, Store);
+	window.ContentStream = ContentStream;
 
+<<<<<<< HEAD
 	let Stream = Kefir.merge(Actions)
 		.skipDuplicates()
 		.map(diffAndStore.bind(Store))
@@ -54,7 +44,52 @@ export default function createStore(obj) {
 
 	// Stream = Kefir.combine([Stream, (Modifier || Stream)])
 		//.map(([ contents, modified ]) => ({ contents, modified }));
+=======
+	let Actions = actionsToStreams(Store.actions)
+		.map(action => Kefir.combine([
+			Kefir.constant(Store),
+			Kefir.constant(action._name),
+			action.flatMap(() => ContentStream.sampledBy(action)),
+			action
+		]).log());
+
+	let Stream = Kefir.merge(Actions).log('Actions')
+		.map(mutateOrPassthrough)
+		.filter(diff);
+
+	Stream.map(([ currentState, nextState ]) => {
+			return currentState.merge(nextState);
+		})
+		.log('merged')
+		// .withHandler((emitter, { value }) => {
+		// 	ContentStream._emit(value);
+		// 	return value;
+		// })
+		// .skipDuplicates()
+		.map(store => store.toJS())
+		.log('store');
+>>>>>>> emitter
 
 	Store = inherit(Stream, Store);
 	return Store;
+
+	// let Actions = Object.keys(Store.actions || {})
+	// 	.map(getActionByKey, Store)
+	// 	.map(runHandlerAndStore, Store);
+
+	// let Stream = Kefir.merge(Actions)
+	// 	.map(diffAndStore.bind(Store));
+
+	// if (Store.modifier) {
+	// 	let Modifier = Store.modifier.toProperty(() => 0);
+	// 	Modifier.onValue(() => void 0);
+
+	// 	Stream = Kefir.combine([Stream, Modifier], (a, b) => b)
+	// 		.sampledBy(Stream)
+	// 		.map(runHandler.bind(Store, Store.modifier._name))
+	// 		.skipDuplicates();
+	// }
+
+	// Store = inherit(Stream, Store);
+	// return Store;
 };
