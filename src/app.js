@@ -7,30 +7,15 @@ import Immutable from 'immutable';
 
 let isWorking = false;
 
-<<<<<<< HEAD
-TodoStore.log('todoStore');
+// TodoStore.log('todoStore');
 
-TodoStore.onValue(function([ contents, modified ]) {
-	let todos = contents.toList().toJS();
-	//let filtered = modified.toList().toJS();
-	console.log(todos.length);
-	if (contents.size === 10 && !isWorking) {
-		isWorking = true;
-		let temp = contents.takeLast(4).toList().toJS();
-		temp.forEach(function(todo) {
-			Actions.toggleComplete(todo);
-		});
-		Actions.setFilter(Constants.FILTER_COMPLETE);
-		Actions.setFilter(Constants.FILTER_ALL);
-	}
-});
-=======
-// TodoStore.map(store => store.toList().toJS()).log('todoStore');
-
-// TodoStore.onValue(function(todos) {
-// 	if (todos.size === 10 && !isWorking) {
+// TodoStore.onValue(function([ contents, modified ]) {
+// 	let todos = contents.toList().toJS();
+// 	//let filtered = modified.toList().toJS();
+// 	console.log(todos.length);
+// 	if (contents.size === 10 && !isWorking) {
 // 		isWorking = true;
-// 		let temp = todos.takeLast(4).toList().toJS();
+// 		let temp = contents.takeLast(4).toList().toJS();
 // 		temp.forEach(function(todo) {
 // 			Actions.toggleComplete(todo);
 // 		});
@@ -38,7 +23,6 @@ TodoStore.onValue(function([ contents, modified ]) {
 // 		Actions.setFilter(Constants.FILTER_ALL);
 // 	}
 // });
->>>>>>> emitter
 
 for (var i = 0; i < 10; i++) {
 	Actions.create(`hello${i+1}`);
