@@ -21,7 +21,6 @@
     "http-server": "^0.8.0",
     "immutable": "^3.7.4",
     "kefir": "^2.6.0",
-    "node-event-emitter": "0.0.1",
     "react": "^0.13.3",
     "uglifyify": "^3.0.1",
     "vinyl-buffer": "^1.0.0",

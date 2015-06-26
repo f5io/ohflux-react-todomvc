@@ -1,5 +1,5 @@
 import { flatten } from './utilities';
-import createAction from './createAction';
+import { createAction } from './';
 
 export default function createActions(...args) {
 	return flatten(args)
