@@ -7,19 +7,19 @@ import Immutable from 'immutable';
 
 let isWorking = false;
 
-TodoStore.map(store => store.toList().toJS()).log('todoStore');
+// TodoStore.map(store => store.toList().toJS()).log('todoStore');
 
-TodoStore.onValue(function(todos) {
-	if (todos.size === 10 && !isWorking) {
-		isWorking = true;
-		let temp = todos.takeLast(4).toList().toJS();
-		temp.forEach(function(todo) {
-			Actions.toggleComplete(todo);
-		});
-		Actions.setFilter(Constants.FILTER_COMPLETE);
-		Actions.setFilter(Constants.FILTER_ALL);
-	}
-});
+// TodoStore.onValue(function(todos) {
+// 	if (todos.size === 10 && !isWorking) {
+// 		isWorking = true;
+// 		let temp = todos.takeLast(4).toList().toJS();
+// 		temp.forEach(function(todo) {
+// 			Actions.toggleComplete(todo);
+// 		});
+// 		Actions.setFilter(Constants.FILTER_COMPLETE);
+// 		Actions.setFilter(Constants.FILTER_ALL);
+// 	}
+// });
 
 for (var i = 0; i < 10; i++) {
 	Actions.create(`hello${i+1}`);

@@ -3,9 +3,10 @@ import { inherit } from '../utilities';
 
 export default function actionFactory(eventStream) {
 	return function(actionName) {
-		let functor = (...args) => eventStream.emit(actionName, args);
-		let stream = Kefir.fromEvents(eventStream, actionName);
-		functor = inherit(stream, functor);
+		let Emitter;
+		let Stream = Kefir.stream(emitter => Emitter = emitter);
+		let functor = (value) => Emitter.emit(value);
+		functor = inherit(Stream, functor);
 		functor._name = actionName;
 		return functor;
 	}
