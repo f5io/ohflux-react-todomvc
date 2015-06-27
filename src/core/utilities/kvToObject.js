@@ -1,3 +1,2 @@
-import { kvToObjectWithModifier } from './'
-
+import { kvToObjectWithModifier } from './';
 export default kvToObjectWithModifier();

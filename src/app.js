@@ -2,6 +2,10 @@ import Actions from './actions';
 import TodoStore from './stores';
 import Constants from './constants';
 
+// console.log(Actions);
+// console.log(TodoStore);
+// console.log(Constants);
+
 import Kefir from 'kefir';
 import Immutable from 'immutable';
 
@@ -19,8 +23,8 @@ TodoStore.onValue(function([ contents, modified ]) {
 		temp.forEach(function(todo) {
 			Actions.toggleComplete(todo);
 		});
-		Actions.setFilter(Constants.FILTER_COMPLETE);
-		Actions.setFilter(Constants.FILTER_ALL);
+		// Actions.setFilter(Constants.FILTER_COMPLETE);
+		// Actions.setFilter(Constants.FILTER_ALL);
 	}
 });
 

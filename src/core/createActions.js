@@ -14,7 +14,8 @@ export default function createActions(...args) {
 		.map(objectToKV);
 
 	if (objKeyValues.length) {
-		objKeyValues = objKeyValues.reduce(flattenShallow);
+		objKeyValues = objKeyValues
+			.reduce(flattenShallow);
 	}
 
 	let stringKeyValues = flatArgs
