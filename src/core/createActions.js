@@ -11,8 +11,11 @@ export default function createActions(...args) {
 
 	let objKeyValues = flatArgs
 		.filter(isObject)
-		.map(objectToKV)
-		.reduce(flattenShallow);
+		.map(objectToKV);
+
+	if (objKeyValues.length) {
+		objKeyValues = objKeyValues.reduce(flattenShallow);
+	}
 
 	let stringKeyValues = flatArgs
 		.filter(notObject)
