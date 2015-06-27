@@ -10,29 +10,24 @@ let undefinedToMirror = ([k, v]) => {
 }
 
 export default function createConstants(...args) {
-	return flatten(args)
-		.reduce((acc, key) => (acc[key] = key) && acc, {});
+	let flatArgs = flatten(args);
+
+	let objKeyValues = flatArgs
+		.filter(isObject)
+		.map(objectToKV);
+
+	if (objKeyValues.length) {
+		objKeyValues = objKeyValues
+			.reduce(flattenShallow);
+	}
+
+	let stringKeyValues = flatArgs
+		.filter(notObject)
+		.map(keyToKV);
+
+	return stringKeyValues
+		.concat(objKeyValues)
+		.map(undefinedToMirror)
+		.reduce(kvToObject);
+
 };
-
-// export default function createConstants(...args) {
-// 	let flatArgs = flatten(args);
-
-// 	let objKeyValues = flatArgs
-// 		.filter(isObject)
-// 		.map(objectToKV);
-
-// 	if (objKeyValues.length) {
-// 		objKeyValues = objKeyValues
-// 			.reduce(flattenShallow);
-// 	}
-
-// 	let stringKeyValues = flatArgs
-// 		.filter(notObject)
-// 		.map(keyToKV);
-
-// 	return stringKeyValues
-// 		.concat(objKeyValues)
-// 		.map(undefinedToMirror)
-// 		.reduce(kvToObject);
-
-// };

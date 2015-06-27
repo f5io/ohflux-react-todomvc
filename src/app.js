@@ -23,8 +23,8 @@ TodoStore.onValue(function([ contents, modified ]) {
 		temp.forEach(function(todo) {
 			Actions.toggleComplete(todo);
 		});
-		// Actions.setFilter(Constants.FILTER_COMPLETE);
-		// Actions.setFilter(Constants.FILTER_ALL);
+		Actions.setFilter(Constants.FILTER_COMPLETE);
+		Actions.setFilter(Constants.FILTER_ALL);
 	}
 });
 

@@ -22,7 +22,6 @@ export default function createStore(obj) {
 	let Content = Store.type && Store.type() || Immutable.OrderedMap();
 
 	let ContentPool = Kefir.pool();
-	ContentPool.plug(Kefir.constant(Content));
 
 	let Actions = actionsToStreams(Store.actions)
 		.map(action => Kefir.combine([
@@ -47,6 +46,8 @@ export default function createStore(obj) {
 			Prop
 		]).map(mutateOrPassthrough);
 	}
+
+	ContentPool.plug(Kefir.constant(Content));
 	
 	let Stream = Modifier.concat(Mutate);
 

@@ -9,7 +9,6 @@ let TodoStore = createStore({
 	actions: Actions,
 	modifier: Actions.setFilter,
 	onCreate(todos, todo) {
-		console.log('onCreate');
 		return todos.set(todo.get('id'), todo);
 	},
 	onUpdateText(todos, todo) {
