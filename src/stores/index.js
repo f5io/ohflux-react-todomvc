@@ -2,21 +2,13 @@ import Actions from '../actions';
 import Immutable from 'Immutable';
 import Constants from '../constants';
 import { createStore } from '../core';
-import { uuid } from '../utilities';
-
-let create = text => Immutable.Map({
-	id: uuid(),
-	completed: false,
-	text: text
-});
 
 let isComplete = todo => todo.get('complete');
 
 let TodoStore = createStore({
 	actions: Actions,
 	modifier: Actions.setFilter,
-	onCreate(todos, text) {
-		let todo = create(text);
+	onCreate(todos, todo) {
 		return todos.set(todo.get('id'), todo);
 	},
 	onUpdateText(todos, todo) {

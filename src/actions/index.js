@@ -1,7 +1,16 @@
+import Immutable from 'immutable';
 import { createActions } from '../core';
+import { uuid } from '../utilities';
+
+let notEmpty = str => str.trim().length;
+let create = text => Immutable.Map({
+	id: uuid(),
+	completed: false,
+	text: text
+});
 
 let Actions = createActions({
-	create: (x => x.map(() => 3)),
+	create: action => action.filter(notEmpty).map(create),
 	updateText: null,
 	toggleComplete: null,
 	toggleCompleteAll: null,
