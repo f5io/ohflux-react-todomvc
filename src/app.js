@@ -28,12 +28,6 @@ for (var i = 0; i < 10; i++) {
 	Actions.create(`hello${i+1}`);
 }
 
-window.Actions = Actions;
-window.TodoStore = TodoStore;
-
-window.Kefir = Kefir;
-window.Immutable = Immutable;
-
 // import React from 'react';
 // import { App } from './components';
 

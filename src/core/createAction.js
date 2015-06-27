@@ -1,10 +1,12 @@
 import Kefir from 'kefir';
 import { inherit } from './utilities';
 
-export default function createAction(actionName) {
+export default function createAction(actionName, transducer) {
+	transducer = transducer || (x => x);
 	let Pool = Kefir.pool();
 	let functor = (value) => Pool.plug(Kefir.constant(value));
-	functor = inherit(Pool, functor);
+	let Stream = transducer(Pool);
+	functor = inherit(Stream, functor);
 	functor._name = actionName;
 	return functor;
 }

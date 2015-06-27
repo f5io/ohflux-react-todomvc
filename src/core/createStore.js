@@ -22,8 +22,7 @@ export default function createStore(obj) {
 	let Content = Store.type && Store.type() || Immutable.OrderedMap();
 
 	let ContentPool = Kefir.pool();
-	ContentPool.plug(Kefir.constant(Content));
-
+	
 	let Actions = actionsToStreams(Store.actions)
 		.map(action => Kefir.combine([
 			Kefir.constant(Store),
@@ -31,16 +30,13 @@ export default function createStore(obj) {
 			action
 		], [ContentPool.sampledBy(action)], (a, b, c, d) => [a, b, d, c]));
 
-	Kefir.merge(Actions)
-		.map(mutateOrPassthrough)
+	let Mutate = Kefir.merge(Actions).map(mutateOrPassthrough)
 		.filter(diff)
-		.map(([ currentState, nextState ]) => {
-			ContentPool.plug(Kefir.constant(nextState));
-			return nextState;
-		})
-		.onValue(() => void 0);
+		.onValue(([currentState, nextState]) =>
+			ContentPool.plug(Kefir.constant(nextState))
+		);
 
-	let Modifier = ContentPool.map(val => val);
+	let Modifier = ContentPool;
 	if (Store.modifier) {
 		let Prop = Store.modifier.toProperty(() => void 0);
 		Modifier = Kefir.combine([
@@ -51,6 +47,10 @@ export default function createStore(obj) {
 		]).map(mutateOrPassthrough);
 	}
 
-	Store = inherit(Modifier, Store);
+	ContentPool.plug(Kefir.constant(Content));
+	
+	let Stream = Modifier.concat(Mutate);
+
+	Store = inherit(Stream, Store);
 	return Store;
 };
