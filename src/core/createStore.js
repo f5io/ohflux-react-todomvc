@@ -2,8 +2,6 @@ import Immutable from 'immutable';
 import Kefir from 'kefir';
 import { isFunction, toSentenceCase, inherit, flatten } from './utilities';
 
-let contentKey = Symbol('contents');
-
 function actionsToStreams(actions = {}) {
 	return Object.keys(actions).map(key => actions[key]);
 }
@@ -13,6 +11,11 @@ function mutateOrPassthrough([context, key, content, ...rest]) {
 	return isFunction(handler) && [content, handler(content, ...rest)] || [content, content];
 }
 
+function filterOrPassthrough([context, key, content, ...rest]) {
+	let handler = context[key];
+	return isFunction(handler) && [content, [handler(content, ...rest), ...rest]] || [content, [content, ...rest]];
+}
+
 function diff([currentState, nextState]) {
 	return !Immutable.is(currentState, nextState);
 }
@@ -20,8 +23,10 @@ function diff([currentState, nextState]) {
 export default function createStore(obj) {
 	let Store = Object.create(obj);
 	let Content = Store.type && Store.type() || Immutable.OrderedMap();
+	Store.getInitialState = () => Kefir.constant([Content, [ Content, undefined ]]);
 
 	let ContentPool = Kefir.pool();
+	ContentPool.plug(Kefir.constant(Content));
 
 	let Actions = actionsToStreams(Store.actions)
 		.map(action => Kefir.combine([
@@ -37,20 +42,17 @@ export default function createStore(obj) {
 		);
 
 	let Modifier = ContentPool;
-	if (Store.modifier) {
-		let Prop = Store.modifier.toProperty(() => void 0);
+	if (Store.filterAction) {
+		let Prop = Store.filterAction.toProperty(() => void 0);
 		Modifier = Kefir.combine([
 			Kefir.constant(Store),
-			Kefir.constant(Store.modifier._name),
+			Kefir.constant(Store.filterAction._name),
 			ContentPool,
 			Prop
-		]).map(mutateOrPassthrough);
+		]).map(filterOrPassthrough);
 	}
-
-	ContentPool.plug(Kefir.constant(Content));
 	
-	let Stream = Modifier.concat(Mutate);
-
+	let Stream = Modifier.concat(Mutate)
 	Store = inherit(Stream, Store);
 	return Store;
 };

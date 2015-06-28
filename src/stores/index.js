@@ -3,11 +3,12 @@ import Immutable from 'Immutable';
 import Constants from '../constants';
 import { createStore } from '../core';
 
-let isComplete = todo => todo.get('complete');
+let isComplete = todo => todo.get('completed');
 
 let TodoStore = createStore({
 	actions: Actions,
-	modifier: Actions.setFilter,
+	filterAction: Actions.setFilter,
+	getInitialFilter: () => Constants.FILTER_ALL,
 	onCreate(todos, todo) {
 		return todos.set(todo.get('id'), todo);
 	},
@@ -15,16 +16,16 @@ let TodoStore = createStore({
 		return todos.setIn([todo.id, 'text'], todo.text);
 	},
 	onToggleComplete(todos, todo) {
-		return todos.setIn([todo.id, 'complete'], !todo.complete);
+		return todos.setIn([todo.id, 'completed'], !todo.completed);
 	},
 	onToggleCompleteAll(todos) {
-		return todos.map(todo => todo.set('complete', true));
+		return todos.map(todo => todo.set('completed', true));
 	},
 	onDestroy(todos, todo) {
 		return todos.delete(todo.id);
 	},
 	onDestroyCompleted(todos) {
-		return todos.filterNot(todo => todo.get('complete'));
+		return todos.filterNot(todo => todo.get('completed'));
 	},
 	setFilter(todos, filter) {
 		switch(filter) {

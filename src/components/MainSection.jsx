@@ -4,16 +4,15 @@ import { TodoItem } from './';
 
 let MainSection = React.createClass({
 	propTypes: {
-		todos: React.PropTypes.array.isRequired,
-		filteredTodos: React.PropTypes.array.isRequired,
-		areAllComplete: React.PropTypes.bool.isRequired
+		allTodos: React.PropTypes.array.isRequired,
+		filteredTodos: React.PropTypes.array.isRequired
 	},
 	render() {
-		let todos = this.props.todos.map(todo => <TodoItem key={todo.id} todo={todo}/>);
-		let allComplete = this.props.todo.every(todo => todo.complete);
+		let todos = this.props.filteredTodos.map(todo => <TodoItem key={todo.id} todo={todo}/>);
+		let allComplete = this.props.allTodos.every(todo => todo.complete);
 
 		return (
-			this.props.todos.length === 0 ? null : <section id="main">
+			this.props.filteredTodos.length === 0 ? null : <section id="main">
                 <input id="toggle-all" type="checkbox"
                     onChange={Actions.toggleCompleteAll}
                     checked={allComplete ? 'checked' : ''} />
@@ -23,3 +22,5 @@ let MainSection = React.createClass({
 		);
 	}
 });
+
+export default MainSection;

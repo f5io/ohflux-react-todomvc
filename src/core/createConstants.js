@@ -25,9 +25,10 @@ export default function createConstants(...args) {
 		.filter(notObject)
 		.map(keyToKV);
 
-	return stringKeyValues
+	let constantsObj = stringKeyValues
 		.concat(objKeyValues)
 		.map(undefinedToMirror)
 		.reduce(kvToObject);
 
+	return Object.freeze(constantsObj);
 };
