@@ -5,7 +5,6 @@ export { default as inherit } from './inherit';
 export { default as isDefined } from './isDefined';
 export { default as isFunction } from './isFunction';
 export { default as isObject } from './isObject';
-export { default as keyToKM } from './keyToKM';
 export { default as keyToKV } from './keyToKV';
 export { default as kvToObjectWithModifier } from './kvToObjectWithModifier';
 export { default as kvToObject } from './kvToObject';

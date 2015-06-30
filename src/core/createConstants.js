@@ -1,7 +1,7 @@
 import {
 	flatten, flattenShallow,
 	isDefined, isObject, notObject,
-	keyToKV, keyToKM, objectToKV, kvToObject
+	keyToKV, objectToKV, kvToObject
 } from './utilities';
 
 let undefinedToMirror = ([k, v]) => {

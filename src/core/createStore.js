@@ -1,6 +1,7 @@
-import Immutable from 'immutable';
 import Kefir from 'kefir';
-import { isFunction, toSentenceCase, inherit, flatten } from './utilities';
+import { isFunction, isObject, toSentenceCase, inherit, flatten } from './utilities';
+
+let noop = () => void 0;
 
 function actionsToStreams(actions = {}) {
 	return Object.keys(actions).map(key => actions[key]);
@@ -21,8 +22,43 @@ function diff([currentState, nextState]) {
 }
 
 export default function createStore(obj) {
+	
 	let Store = Object.create(obj);
-	let Content = Store.type && Store.type() || Immutable.OrderedMap();
+
+	let initialState = (Store.getInitialState || noop)();
+	if (initialState === void 0) {
+		throw new Error('Please supply a `getInitialState` method');
+	}
+
+	let statePool = Kefir.pool();
+	statePool.plug(Kefir.constant(initialState));
+
+	let stateProp = statePool.toProperty();
+
+	let actions = Array.isArray(Store.actions) ? flatten(Store.actions) : [Store.actions];
+
+	let actionObjects = actions
+		.filter(a => !a._isAction)
+		.filter(o => isObject(o))
+		.map(o => Object.keys(o).map(key => o[key]));
+
+	let actualActions = actions.filter(a => a._isAction);
+
+	actions = flatten(actionObjects)
+		.concat(actualActions);
+
+	// // let mergedActions = Kefir.merge(actions);
+	let storeActions = actions
+		.filter(action => isFunction(Store[`on${toSentenceCase(action._name)}`]));
+
+	let reduceActions = actions
+		.filter(action => isFunction(Store[action._name]));
+
+
+
+
+
+	let Content = Store.type && Store.type() || {};
 	Store.getInitialState = () => Kefir.constant([Content, [ Content, undefined ]]);
 
 	let ContentPool = Kefir.pool();

@@ -12,8 +12,7 @@ gulp.task('scripts', function() {
 	return browserify({ debug: true })
 		.transform(babelify)
 		.transform({
-			global: true,
-			mangle: false
+			global: true
 		}, 'uglifyify')
 		.require('./src/app.js', { entry: true })
 		.bundle()
