@@ -5,9 +5,9 @@ import TodoStore from '../stores';
 
 let App = React.createClass({
 	mixins: [
-		connect(TodoStore, ({ state, filtered, filter }) => {
-			let allTodos = state.toList().toJS();
-			let filteredTodos = filtered.toList().toJS();
+		connect(TodoStore, ({ allTodos, filteredTodos, filter }) => {
+			allTodos = allTodos.toList().toJS();
+			filteredTodos = filteredTodos.toList().toJS();
 			return { allTodos, filteredTodos, filter };
 		})
 	],

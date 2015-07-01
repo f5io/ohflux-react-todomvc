@@ -3,36 +3,53 @@ import Immutable from 'Immutable';
 import Constants from '../constants';
 import { createStore } from '../core';
 
-let isComplete = todo => todo.get('completed');
-
 let TodoStore = createStore({
 	actions: Actions,
-	filterAction: Actions.setFilter,
-	getInitialFilter: () => Constants.FILTER_ALL,
-	onCreate(todos, todo) {
-		return todos.set(todo.get('id'), todo);
+	getInitialState: () => ({
+		allTodos: Immutable.OrderedMap(),
+		filteredTodos: Immutable.OrderedMap(),
+		filter: Constants.FILTER_ALL
+	}),
+	onCreate({ allTodos }, todo) {
+		allTodos = allTodos.set(todo.get('id'), todo);
+		return { allTodos };
 	},
-	onUpdateText(todos, todo) {
-		return todos.setIn([todo.id, 'text'], todo.text);
+	onUpdateText({ allTodos }, todo) {
+		allTodos = allTodos.setIn([todo.id, 'text'], todo.text);
+		return { allTodos };
 	},
-	onToggleComplete(todos, todo) {
-		return todos.setIn([todo.id, 'completed'], !todo.completed);
+	onToggleComplete({ allTodos }, todo) {
+		allTodos = allTodos.setIn([todo.id, 'completed'], !todo.completed);
+		return { allTodos };
 	},
-	onToggleCompleteAll(todos) {
-		return todos.map(todo => todo.set('completed', true));
+	onToggleCompleteAll({ allTodos }) {
+		allTodos = allTodos.set('completed', true);
+		return { allTodos };
 	},
-	onDestroy(todos, todo) {
-		return todos.delete(todo.id);
+	onDestroy({ allTodos }, todo) {
+		allTodos = allTodos.delete(todo.id);
+		return { allTodos };
 	},
-	onDestroyCompleted(todos) {
-		return todos.filterNot(todo => todo.get('completed'));
+	onDestroyCompleted({ allTodos }) {
+		allTodos = allTodos.filterNot(todo => todo.get('completed'));
+		return { allTodos };
 	},
-	setFilter(todos, filter) {
-		switch(filter) {
-			case Constants.FILTER_ACTIVE: return todos.filterNot(isComplete);
-			case Constants.FILTER_COMPLETE: return todos.filter(isComplete);
-			default: return todos;
+	onSetFilter({ allTodos }, filter) {
+		return { filter };
+	},
+	setFilter({ allTodos, filteredTodos }, filter) {
+		switch (filter) {
+			case Constants.FILTER_ACTIVE:
+				filteredTodos = allTodos.filterNot(todo => todo.get('completed'));
+			break;
+			case Constants.FILTER_COMPLETE:
+				filteredTodos = allTodos.filter(todo => todo.get('completed'));
+			break;
+			default:
+				filteredTodos = allTodos;
+			break;
 		}
+		return { filteredTodos, filter };
 	}
 });
 

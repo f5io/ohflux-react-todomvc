@@ -49,46 +49,72 @@ export default function createStore(obj) {
 
 	// // let mergedActions = Kefir.merge(actions);
 	let storeActions = actions
-		.filter(action => isFunction(Store[`on${toSentenceCase(action._name)}`]));
-
-	let reduceActions = actions
-		.filter(action => isFunction(Store[action._name]));
-
-
-
-
-
-	let Content = Store.type && Store.type() || {};
-	Store.getInitialState = () => Kefir.constant([Content, [ Content, undefined ]]);
-
-	let ContentPool = Kefir.pool();
-	ContentPool.plug(Kefir.constant(Content));
-
-	let Actions = actionsToStreams(Store.actions)
+		.filter(action => isFunction(Store[`on${toSentenceCase(action._name)}`]))
 		.map(action => Kefir.combine([
-			Kefir.constant(Store),
-			Kefir.constant(`on${toSentenceCase(action._name)}`),
+			Kefir.constant(Store[`on${toSentenceCase(action._name)}`]),
 			action
-		], [ContentPool.sampledBy(action)], (a, b, c, d) => [a, b, d, c]));
+		], [
+			stateProp.sampledBy(action)
+		], (handler, values, state) => handler(state, values)));
 
-	let Mutate = Kefir.merge(Actions).map(mutateOrPassthrough)
-		.filter(diff)
-		.onValue(([currentState, nextState]) =>
-			ContentPool.plug(Kefir.constant(nextState))
-		);
+	// let mergedStoreActions = Kefir.merged(storeActions);
 
-	let Modifier = ContentPool;
-	if (Store.filterAction) {
-		let Prop = Store.filterAction.toProperty(() => void 0);
-		Modifier = Kefir.combine([
-			Kefir.constant(Store),
-			Kefir.constant(Store.filterAction._name),
-			ContentPool,
-			Prop
-		]).map(filterOrPassthrough);
-	}
-	
-	let Stream = Modifier.concat(Mutate)
-	Store = inherit(Stream, Store);
+	// let reduceActions = actions
+	// 	.filter(action => isFunction(Store[action._name]))
+	// 	.map(action => Kefir.combine([
+	// 		Kefir.constant(Store[action._name]),
+	// 		action
+	// 	], [
+	// 		stateProp.sampledBy(action)
+	// 	], (handler, values, state) => handler(state, values)));
+
+	let mergedStoreActions = Kefir.merge(storeActions);
+
+	let combinedStream = Kefir.combine([
+		stateProp.sampledBy(mergedStoreActions),
+		mergedStoreActions
+	], (state, nextState) => Object.assign({}, state, nextState))
+		.skipDuplicates()
+		.onValue(state => statePool.plug(Kefir.constant(state)));
+
+	Store = inherit(stateProp, Store);
 	return Store;
+
+
+
+
+
+	// let Content = Store.type && Store.type() || {};
+	// Store.getInitialState = () => Kefir.constant([Content, [ Content, undefined ]]);
+
+	// let ContentPool = Kefir.pool();
+	// ContentPool.plug(Kefir.constant(Content));
+
+	// let Actions = actionsToStreams(Store.actions)
+	// 	.map(action => Kefir.combine([
+	// 		Kefir.constant(Store),
+	// 		Kefir.constant(`on${toSentenceCase(action._name)}`),
+	// 		action
+	// 	], [ContentPool.sampledBy(action)], (a, b, c, d) => [a, b, d, c]));
+
+	// let Mutate = Kefir.merge(Actions).map(mutateOrPassthrough)
+	// 	.filter(diff)
+	// 	.onValue(([currentState, nextState]) =>
+	// 		ContentPool.plug(Kefir.constant(nextState))
+	// 	);
+
+	// let Modifier = ContentPool;
+	// if (Store.filterAction) {
+	// 	let Prop = Store.filterAction.toProperty(() => void 0);
+	// 	Modifier = Kefir.combine([
+	// 		Kefir.constant(Store),
+	// 		Kefir.constant(Store.filterAction._name),
+	// 		ContentPool,
+	// 		Prop
+	// 	]).map(filterOrPassthrough);
+	// }
+	
+	// let Stream = Modifier.concat(Mutate)
+	// Store = inherit(Stream, Store);
+	// return Store;
 };

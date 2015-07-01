@@ -1,20 +1,13 @@
-let arrayToObject = ([ state, [ filtered, filter ] ]) => ({ state, filter, filtered });
-
 export default function connect(Store, modifier = (a) => a) {
 	return {
 		getInitialState() {
-			console.log('getInitialState');
-			let initialState;
-			Store.getInitialState()
-				.map(arrayToObject)
-				.map(modifier)
-				.toProperty()
-				.onValue((val) => initialState = val);
-			return initialState;
+			let state;
+			Store.map(modifier).onValue((s) => state = s);
+			return state;
 		},
 		componentDidMount() {
 			console.log('componentDidMount');
-			this._storeStream = Store.map(arrayToObject).map(modifier);
+			this._storeStream = Store.map(modifier);
 			this._storeStreamHandler = (state) => {
 				this.setState(state);
 			}
