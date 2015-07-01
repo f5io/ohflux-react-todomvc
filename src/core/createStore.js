@@ -3,26 +3,7 @@ import { isFunction, isObject, toSentenceCase, inherit, flatten } from './utilit
 
 let noop = () => void 0;
 
-function actionsToStreams(actions = {}) {
-	return Object.keys(actions).map(key => actions[key]);
-}
-
-function mutateOrPassthrough([context, key, content, ...rest]) {
-	let handler = context[key];
-	return isFunction(handler) && [content, handler(content, ...rest)] || [content, content];
-}
-
-function filterOrPassthrough([context, key, content, ...rest]) {
-	let handler = context[key];
-	return isFunction(handler) && [content, [handler(content, ...rest), ...rest]] || [content, [content, ...rest]];
-}
-
-function diff([currentState, nextState]) {
-	return !Immutable.is(currentState, nextState);
-}
-
 export default function createStore(obj) {
-	
 	let Store = Object.create(obj);
 
 	let initialState = (Store.getInitialState || noop)();
@@ -47,7 +28,6 @@ export default function createStore(obj) {
 	actions = flatten(actionObjects)
 		.concat(actualActions);
 
-	// // let mergedActions = Kefir.merge(actions);
 	let storeActions = actions
 		.filter(action => isFunction(Store[`on${toSentenceCase(action._name)}`]))
 		.map(action => Kefir.combine([
@@ -57,64 +37,28 @@ export default function createStore(obj) {
 			stateProp.sampledBy(action)
 		], (handler, values, state) => handler(state, values)));
 
-	// let mergedStoreActions = Kefir.merged(storeActions);
-
-	// let reduceActions = actions
-	// 	.filter(action => isFunction(Store[action._name]))
-	// 	.map(action => Kefir.combine([
-	// 		Kefir.constant(Store[action._name]),
-	// 		action
-	// 	], [
-	// 		stateProp.sampledBy(action)
-	// 	], (handler, values, state) => handler(state, values)));
-
 	let mergedStoreActions = Kefir.merge(storeActions);
 
 	let combinedStream = Kefir.combine([
 		stateProp.sampledBy(mergedStoreActions),
 		mergedStoreActions
-	], (state, nextState) => Object.assign({}, state, nextState))
+	], (state, nextState) => Object.assign({}, state, nextState));
+
+	let reducers = Store.reducers || (x => x);
+	reducers = isObject(reducers) ? Object.keys(reducers).map(k => reducers[k]) : reducers;
+	reducers = Array.isArray(reducers) ? reducers : [reducers];
+	reducers = reducers.filter(fn => isFunction(fn));
+
+	let combinedStreamWithReducers = reducers
+		.reduce((stream, reducer) => stream.map(reducer), combinedStream);
+
+	let reducedStream = Kefir.combine([
+		combinedStream,
+		combinedStreamWithReducers
+	], (state, reducedState) => Object.assign({}, state, reducedState))
 		.skipDuplicates()
 		.onValue(state => statePool.plug(Kefir.constant(state)));
 
 	Store = inherit(stateProp, Store);
 	return Store;
-
-
-
-
-
-	// let Content = Store.type && Store.type() || {};
-	// Store.getInitialState = () => Kefir.constant([Content, [ Content, undefined ]]);
-
-	// let ContentPool = Kefir.pool();
-	// ContentPool.plug(Kefir.constant(Content));
-
-	// let Actions = actionsToStreams(Store.actions)
-	// 	.map(action => Kefir.combine([
-	// 		Kefir.constant(Store),
-	// 		Kefir.constant(`on${toSentenceCase(action._name)}`),
-	// 		action
-	// 	], [ContentPool.sampledBy(action)], (a, b, c, d) => [a, b, d, c]));
-
-	// let Mutate = Kefir.merge(Actions).map(mutateOrPassthrough)
-	// 	.filter(diff)
-	// 	.onValue(([currentState, nextState]) =>
-	// 		ContentPool.plug(Kefir.constant(nextState))
-	// 	);
-
-	// let Modifier = ContentPool;
-	// if (Store.filterAction) {
-	// 	let Prop = Store.filterAction.toProperty(() => void 0);
-	// 	Modifier = Kefir.combine([
-	// 		Kefir.constant(Store),
-	// 		Kefir.constant(Store.filterAction._name),
-	// 		ContentPool,
-	// 		Prop
-	// 	]).map(filterOrPassthrough);
-	// }
-	
-	// let Stream = Modifier.concat(Mutate)
-	// Store = inherit(Stream, Store);
-	// return Store;
 };

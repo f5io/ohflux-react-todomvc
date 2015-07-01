@@ -37,7 +37,7 @@ let TodoStore = createStore({
 	onSetFilter({ allTodos }, filter) {
 		return { filter };
 	},
-	setFilter({ allTodos, filteredTodos }, filter) {
+	reducers({ allTodos, filteredTodos, filter }) {
 		switch (filter) {
 			case Constants.FILTER_ACTIVE:
 				filteredTodos = allTodos.filterNot(todo => todo.get('completed'));
@@ -49,7 +49,7 @@ let TodoStore = createStore({
 				filteredTodos = allTodos;
 			break;
 		}
-		return { filteredTodos, filter };
+		return { filteredTodos };
 	}
 });
 
