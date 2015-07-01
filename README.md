@@ -5,8 +5,8 @@
 
 ## Roadmap
 
-- Clean up stuff.
-- Refactor `createStore`.
+- ~~Clean up stuff.~~
+- ~~Refactor `createStore`.~~
 - Asynchronous actions.
 - Extract lib.
 - Document.
