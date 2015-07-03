@@ -14,7 +14,7 @@ let Actions = createActions({
 	create: action =>
 		action.filter(notEmpty)
 			.map(create)
-			.flatMap((val) =>
+			.flatMap(val =>
 				Kefir.fromPromise(new Promise(resolve =>
 					setTimeout(resolve, 5000, val)
 				)
