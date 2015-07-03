@@ -7,6 +7,7 @@ export default function createAction(actionName, reduce) {
 	let functor = (value) => actionPool.plug(Kefir.constant(value));
 	let Stream = reduce(actionPool);
 	functor = inherit(Stream, functor);
+	functor.listen = fn => actionPool.toProperty().onValue(fn);
 	functor._name = actionName;
 	functor._isAction = true;
 	return functor;

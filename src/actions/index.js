@@ -13,13 +13,13 @@ let create = text => Immutable.Map({
 let Actions = createActions({
 	create: action =>
 		action.filter(notEmpty)
-			.map(create)
-			.flatMap(val =>
-				Kefir.fromPromise(new Promise(resolve =>
-					setTimeout(resolve, 5000, val)
-				)
-			)
-		),
+			.map(create),
+		// 	.flatMap(val =>
+		// 		Kefir.fromPromise(new Promise(resolve =>
+		// 			setTimeout(resolve, 5000, val)
+		// 		)
+		// 	)
+		// ),
 	updateText: null,
 	toggleComplete: null,
 	toggleCompleteAll: null,
@@ -27,5 +27,7 @@ let Actions = createActions({
 	destroyCompleted: null,
 	setFilter: null
 });
+
+Actions.create.listen(val => console.log(val));
 
 export default Actions;
