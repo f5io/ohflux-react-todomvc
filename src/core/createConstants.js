@@ -1,32 +1,9 @@
 import {
-	flatten, flattenShallow,
-	isDefined, isObject, notObject,
-	keyToKV, objectToKV, kvToObject
+	argsToKV, kvToObject, undefinedToMirror
 } from './utilities';
 
-let undefinedToMirror = ([k, v]) => {
-	if (!isDefined(v)) v = k;
-	return [k, v];
-}
-
 export default function createConstants(...args) {
-	let flatArgs = flatten(args);
-
-	let objKeyValues = flatArgs
-		.filter(isObject)
-		.map(objectToKV);
-
-	if (objKeyValues.length) {
-		objKeyValues = objKeyValues
-			.reduce(flattenShallow);
-	}
-
-	let stringKeyValues = flatArgs
-		.filter(notObject)
-		.map(keyToKV);
-
-	let constantsObj = stringKeyValues
-		.concat(objKeyValues)
+	let constantsObj = argsToKV(args)
 		.map(undefinedToMirror)
 		.reduce(kvToObject);
 

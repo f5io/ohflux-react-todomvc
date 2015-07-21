@@ -1,28 +1,9 @@
-import Kefir from 'kefir';
 import { createAction } from './';
 import {
-	flatten, flattenShallow,
-	isObject, notObject,
-	keyToKV, objectToKV, kvToObjectWithModifier
+	argsToKV, kvToObjectWithModifier, nullToUndefined
 } from './utilities';
 
 export default function createActions(...args) {
-	let flatArgs = flatten(args);
-
-	let objKeyValues = flatArgs
-		.filter(isObject)
-		.map(objectToKV);
-
-	if (objKeyValues.length) {
-		objKeyValues = objKeyValues
-			.reduce(flattenShallow);
-	}
-
-	let stringKeyValues = flatArgs
-		.filter(notObject)
-		.map(keyToKV);
-
-	return stringKeyValues
-		.concat(objKeyValues)
+	return argsToKV(args)
 		.reduce(kvToObjectWithModifier(createAction));
 }
