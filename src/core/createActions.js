@@ -1,6 +1,6 @@
 import { createAction } from './';
 import {
-	argsToKV, kvToObjectWithModifier, nullToUndefined
+	argsToKV, kvToObjectWithModifier
 } from './utilities';
 
 export default function createActions(...args) {
