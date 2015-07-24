@@ -10,9 +10,7 @@ let create = text => Immutable.Map({
 });
 
 let Actions = createActions({
-	create: action =>
-		action.filter(notEmpty)
-			.map(create),
+	create: action => action.filter(notEmpty).map(create),
 	updateText: null,
 	toggleComplete: null,
 	toggleCompleteAll: null,
@@ -31,8 +29,5 @@ let promiseTest = val => new Promise((resolve, reject) => {
 });
 
 Actions.testAsync.listenAndPromise(promiseTest);
-
-window.Actions = Actions;
-
 
 export default Actions;

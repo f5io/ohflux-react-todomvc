@@ -25,10 +25,10 @@ export default function createStore(obj) {
 
 	let actualActions = actions.filter(a => a._isAction);
 
-	actions = flatten(actionObjects)
+	let combinedActions = flatten(actionObjects)
 		.concat(actualActions);
 
-	actions = flatten(actions.map(action => {
+	actions = flatten(combinedActions.map(action => {
 		let childActions = action.children || [];
 		return [ action ].concat(childActions.map(child => action[child]));
 	}));

@@ -14,6 +14,7 @@ export default function createAction(actionName, opts = defaults) {
 	let actionPool = Kefir.pool();
 	let functor = value => actionPool.plug(Kefir.constant(value));
 	let Stream = opts.reduce(actionPool);
+
 	functor = inherit(Stream, functor);
 	functor._name = actionName;
 	functor._isAction = true;
@@ -26,11 +27,11 @@ export default function createAction(actionName, opts = defaults) {
 			functor[child] = createAction(`${actionName}${toSentenceCase(child)}`));
 	}
 
-	functor.listen = fn => actionPool.toProperty().onValue(fn);
+	functor.listen = fn => functor.toProperty().onValue(fn);
 	functor.listenAndPromise = fn => {
 		if (!functor._isAsync)
 			throw new Error('Cannot `listenAndPromise` on a synchronous action!');
-		actionPool.toProperty()
+		functor.toProperty()
 			.flatMap(val => Kefir.fromPromise(fn(val)))
 			.onValue(functor.completed)
 			.onError(functor.failed);
