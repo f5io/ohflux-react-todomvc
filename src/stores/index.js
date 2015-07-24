@@ -37,6 +37,18 @@ let TodoStore = createStore({
 	onSetFilter({ allTodos }, filter) {
 		return { filter };
 	},
+	onTestAsync(state, val) {
+		console.log('onTestAsync', val);
+		return state;
+	},
+	onTestAsyncCompleted(state, val) {
+		console.log('onTestAsyncCompleted', val);
+		return state;
+	},
+	onTestAsyncFailed(state, val) {
+		console.log('onTestAsyncFailed', val);
+		return state;
+	},
 	reducers({ allTodos, filteredTodos, filter }) {
 		switch (filter) {
 			case Constants.FILTER_ACTIVE:

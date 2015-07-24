@@ -28,6 +28,11 @@ export default function createStore(obj) {
 	actions = flatten(actionObjects)
 		.concat(actualActions);
 
+	actions = flatten(actions.map(action => {
+		let childActions = action.children || [];
+		return [ action ].concat(childActions.map(child => action[child]));
+	}));
+
 	let storeActions = actions
 		.filter(action => isFunction(Store[`on${toSentenceCase(action._name)}`]))
 		.map(action => Kefir.combine([
