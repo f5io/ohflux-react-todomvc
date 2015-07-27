@@ -9,6 +9,7 @@ The `core` file contains a potential library based on Reflux, however using Kefi
 
 - ~~Clean up stuff.~~
 - ~~Refactor `createStore`.~~
-- Asynchronous actions.
+- ~~Asynchronous actions.~~
+- Move over to transducers or curried, composed functions.
 - Extract lib.
 - Document.
