@@ -30,7 +30,7 @@ let reduce = curry((fn, y, x) => x.reduce(fn, y));
 function curry(fn, args = []) {
 	return (...a) => {
 		let x = args.concat(...a);
-		return x.length === fn.length ?
+		return x.length >= fn.length ?
 			fn(...x) :
 			curry(fn, x);
 	}
@@ -39,7 +39,7 @@ function curry(fn, args = []) {
 function curryRight(fn, args = []) {
 	return (...a) => {
 		let x = a.concat(...args);
-		return x.length === fn.length ?
+		return x.length >= fn.length ?
 			fn(...x) :
 			curryRight(fn, x);
 	}
