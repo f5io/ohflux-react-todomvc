@@ -19,6 +19,10 @@ function compose(...args) {
 	return x => args.reduceRight((acc, fn) => fn(acc), x);
 }
 
+function composeLeft(...args) {
+	return x => args.reduce((acc, fn) => fn(acc), x);
+}
+
 let map = curry((fn, x) => x.map(fn));
 let filter = curry((fn, x) => x.filter(fn));
 let reduce = curry((fn, y, x) => x.reduce(fn, y));
