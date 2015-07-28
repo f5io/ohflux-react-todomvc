@@ -14,3 +14,29 @@ export { default as nullToUndefined } from './nullToUndefined';
 export { default as objectToKV } from './objectToKV';
 export { default as toSentenceCase } from './toSentenceCase';
 export { default as undefinedToMirror } from './undefinedToMirror';
+
+function compose(...args) {
+	return x => args.reduceRight((acc, fn) => fn(acc), x);
+}
+
+let map = curry((fn, x) => x.map(fn));
+let filter = curry((fn, x) => x.filter(fn));
+let reduce = curry((fn, y, x) => x.reduce(fn, y));
+
+function curry(fn, args = []) {
+	return (...a) => {
+		let x = args.concat(...a);
+		return x.length === fn.length ?
+			fn(...x) :
+			curry(fn, x);
+	}
+}
+
+function curryRight(fn, args = []) {
+	return (...a) => {
+		let x = a.concat(...args);
+		return x.length === fn.length ?
+			fn(...x) :
+			curryRight(fn, x);
+	}
+}
