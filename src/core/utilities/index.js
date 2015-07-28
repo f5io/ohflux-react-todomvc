@@ -44,3 +44,15 @@ function curryRight(fn, args = []) {
 			curryRight(fn, x);
 	}
 }
+
+function memoize(fn) {
+	let cache = new Map();
+	return (...args) => {
+		let key = args.reduce((hash, val) =>
+			hash += val === Object(val) ?
+				JSON.stringify(val) :
+				val, '');
+		if (!cache.has(key)) cache.set(key, fn(...args));
+		return cache.get(key);
+	}
+}
