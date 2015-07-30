@@ -27,6 +27,8 @@ let map = curry((fn, x) => x.map(fn));
 let filter = curry((fn, x) => x.filter(fn));
 let reduce = curry((fn, y, x) => x.reduce(fn, y));
 
+let memoizeAndCurry = compose(curry, memoize);
+
 function curry(fn, args = []) {
 	return (...a) => {
 		let x = args.concat(...a);
@@ -47,12 +49,13 @@ function curryRight(fn, args = []) {
 
 function memoize(fn) {
 	let cache = new Map();
-	return (...args) => {
-		let key = args.reduce((hash, val) =>
+	let memo = (...a) => {
+		let key = a.reduce((hash, val) =>
 			hash += val === Object(val) ?
 				JSON.stringify(val) :
 				val, '');
-		if (!cache.has(key)) cache.set(key, fn(...args));
+		if (!cache.has(key)) cache.set(key, fn(...a));
 		return cache.get(key);
 	}
+	return Object.defineProperty(memo, 'length', { value: fn.length });
 }
