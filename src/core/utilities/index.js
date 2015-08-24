@@ -25,6 +25,7 @@ function composeLeft(...args) {
 
 let map = curry((fn, x) => x.map(fn));
 let filter = curry((fn, x) => x.filter(fn));
+let filterNot = curry((fn, x) => x.filter(y => !fn(y)));
 let reduce = curry((fn, y, x) => x.reduce(fn, y));
 
 let memoizeAndCurry = compose(curry, memoize);
