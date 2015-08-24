@@ -2,6 +2,7 @@ import Kefir from 'kefir';
 import { isFunction, isObject, toSentenceCase, inherit, flatten } from './utilities';
 
 let noop = () => void 0;
+let updateState = (state, nextState) => Object.assign({}, state, nextState);
 
 export default function createStore(obj) {
 	let Store = Object.create(obj);
@@ -47,7 +48,7 @@ export default function createStore(obj) {
 	let combinedStream = Kefir.combine([
 		stateProp.sampledBy(mergedStoreActions),
 		mergedStoreActions
-	], (state, nextState) => Object.assign({}, state, nextState));
+	], updateState);
 
 	let reducers = Store.reducers || (x => x);
 	reducers = isObject(reducers) ? Object.keys(reducers).map(k => reducers[k]) : reducers;
@@ -60,7 +61,7 @@ export default function createStore(obj) {
 	let reducedStream = Kefir.combine([
 		combinedStream,
 		combinedStreamWithReducers
-	], (state, reducedState) => Object.assign({}, state, reducedState))
+	], updateState)
 		.skipDuplicates()
 		.onValue(state => statePool.plug(Kefir.constant(state)));
 

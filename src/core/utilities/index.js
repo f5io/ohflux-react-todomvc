@@ -15,12 +15,12 @@ export { default as objectToKV } from './objectToKV';
 export { default as toSentenceCase } from './toSentenceCase';
 export { default as undefinedToMirror } from './undefinedToMirror';
 
-function compose(...args) {
-	return x => args.reduceRight((acc, fn) => fn(acc), x);
+function compose(...a) {
+	return x => a.reduceRight((y, fn) => fn(y), x);
 }
 
-function composeLeft(...args) {
-	return x => args.reduce((acc, fn) => fn(acc), x);
+function composeLeft(...a) {
+	return x => a.reduce((y, fn) => fn(y), x);
 }
 
 let map = curry((fn, x) => x.map(fn));
@@ -43,7 +43,7 @@ function curryRight(fn, args = []) {
 	return (...a) => {
 		let x = a.concat(...args);
 		return x.length >= fn.length ?
-			fn(...x) :
+			fn(...x.slice(-fn.length)) :
 			curryRight(fn, x);
 	}
 }
