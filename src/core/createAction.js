@@ -1,5 +1,6 @@
-import Kefir from 'kefir';
 import { inherit, isObject, isFunction, toSentenceCase } from './utilities';
+
+import { observable } from 'fnutil';
 
 const defaults = {
 	reduce: x => x,
@@ -11,8 +12,8 @@ export default function createAction(actionName, opts = defaults) {
 	opts = isFunction(opts) ? { reduce: opts } : opts;
 	opts = Object.assign({}, defaults, opts);
 
-	let actionPool = Kefir.pool();
-	let functor = value => actionPool.plug(Kefir.constant(value));
+	let actionPool = observable.of();
+	let functor = value => actionPool.plug(value);
 	let Stream = opts.reduce(actionPool);
 
 	functor = inherit(Stream, functor);
@@ -27,12 +28,12 @@ export default function createAction(actionName, opts = defaults) {
 			functor[child] = createAction(`${actionName}${toSentenceCase(child)}`));
 	}
 
-	functor.listen = fn => functor.toProperty().onValue(fn);
+	functor.listen = fn => functor.onValue(fn);
 	functor.listenAndPromise = fn => {
 		if (!functor._isAsync)
 			throw new Error('Cannot `listenAndPromise` on a synchronous action!');
-		functor.toProperty()
-			.flatMap(val => Kefir.fromPromise(fn(val)))
+		functor.mapPromise(fn)
+			// .flatMap(val => Kefir.fromPromise(fn(val)))
 			.onValue(functor.completed)
 			.onError(functor.failed);
 	}

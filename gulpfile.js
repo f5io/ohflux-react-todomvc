@@ -9,11 +9,11 @@ var gulp = require('gulp'),
 	source = require('vinyl-source-stream');
 
 gulp.task('scripts', function() {
-	return browserify({ debug: true })
+	return browserify({ debug: false })
 		.transform(babelify)
-		.transform({
-			global: true
-		}, 'uglifyify')
+		// .transform({
+		// 	global: true
+		// }, 'uglifyify')
 		.require('./src/app.js', { entry: true })
 		.bundle()
 		.on('error', function(err) {

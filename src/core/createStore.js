@@ -1,8 +1,9 @@
-import Kefir from 'kefir';
 import { isFunction, isObject, toSentenceCase, inherit, flatten } from './utilities';
 
+import { of, merge, combine } from 'fnutil/observable';
+
 let noop = () => void 0;
-let updateState = (state, nextState) => Object.assign({}, state, nextState);
+let updateState = ([state, nextState]) => Object.assign({}, state, nextState);
 
 export default function createStore(obj) {
 	let Store = Object.create(obj);
@@ -12,11 +13,7 @@ export default function createStore(obj) {
 		throw new Error('Please supply a `getInitialState` method');
 	}
 
-	let statePool = Kefir.pool();
-	statePool.plug(Kefir.constant(initialState));
-
-	let stateProp = statePool.toProperty();
-
+  let statePool = of(initialState);
 	let actions = Array.isArray(Store.actions) ? flatten(Store.actions) : [Store.actions];
 
 	let actionObjects = actions
@@ -36,17 +33,18 @@ export default function createStore(obj) {
 
 	let storeActions = actions
 		.filter(action => isFunction(Store[`on${toSentenceCase(action._name)}`]))
-		.map(action => Kefir.combine([
-			Kefir.constant(Store[`on${toSentenceCase(action._name)}`]),
-			action
-		], [
-			stateProp.sampledBy(action)
-		], (handler, values, state) => handler(state, values)));
+		.map(action => combine([
+			of(`on${toSentenceCase(action._name)}`).sampledBy(action),
+			action,
+      statePool.sampledBy(action)
+		], ([handler, values, state]) => {
+      return Store[handler](state, values)
+    }));
 
-	let mergedStoreActions = Kefir.merge(storeActions);
+	let mergedStoreActions = merge(...storeActions);
 
-	let combinedStream = Kefir.combine([
-		stateProp.sampledBy(mergedStoreActions),
+	let combinedStream = combine([
+		statePool.sampledBy(mergedStoreActions),
 		mergedStoreActions
 	], updateState);
 
@@ -58,13 +56,12 @@ export default function createStore(obj) {
 	let combinedStreamWithReducers = reducers
 		.reduce((stream, reducer) => stream.map(reducer), combinedStream);
 
-	let reducedStream = Kefir.combine([
+	let reducedStream = combine([
 		combinedStream,
 		combinedStreamWithReducers
 	], updateState)
-		.skipDuplicates()
-		.onValue(state => statePool.plug(Kefir.constant(state)));
+		.onValue(state => statePool.plug(state));
 
-	Store = inherit(stateProp, Store);
+	Store = inherit(statePool, Store);
 	return Store;
 };
