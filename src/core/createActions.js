@@ -2,8 +2,11 @@ import { createAction } from './';
 import {
 	argsToKV, kvToObjectWithModifier
 } from './utilities';
+import { compose, reduce } from 'fnutil/utils';
 
-export default function createActions(...args) {
-	return argsToKV(args)
-		.reduce(kvToObjectWithModifier(createAction));
-}
+let createActions = (...args) => compose(
+  reduce(kvToObjectWithModifier(createAction), {}),
+  argsToKV
+)(args);
+
+export default createActions;

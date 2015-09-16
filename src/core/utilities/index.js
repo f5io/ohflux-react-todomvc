@@ -1,7 +1,6 @@
 export { default as argsToKV } from './argsToKV';
 export { default as createObj } from './createObj';
 export { default as flatten } from './flatten';
-export { default as flattenShallow } from './flattenShallow';
 export { default as inherit } from './inherit';
 export { default as isDefined } from './isDefined';
 export { default as isFunction } from './isFunction';
@@ -9,8 +8,6 @@ export { default as isObject } from './isObject';
 export { default as keyToKV } from './keyToKV';
 export { default as kvToObjectWithModifier } from './kvToObjectWithModifier';
 export { default as kvToObject } from './kvToObject';
-export { default as notObject } from './notObject';
-export { default as nullToUndefined } from './nullToUndefined';
 export { default as objectToKV } from './objectToKV';
 export { default as toSentenceCase } from './toSentenceCase';
 export { default as undefinedToMirror } from './undefinedToMirror';

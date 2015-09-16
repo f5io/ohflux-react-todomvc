@@ -1,27 +1,30 @@
+import isObject from './isObject';
+import objectToKV from './objectToKV';
+import keyToKV from './keyToKV';
 import {
-	flatten, flattenShallow,
-	isObject, objectToKV,
-	notObject, keyToKV,
-	nullToUndefined
-} from './';
+    compose, map,
+    filter, filterNot, filterSplit,
+    combine, flatten
+} from 'fnutil/utils';
 
-export default function argsToKV(args) {
-	let flatArgs = flatten(args);
+let filterObjectsToKV = compose(
+  combine,
+  map(objectToKV),
+  filter(isObject)
+);
 
-	let objKeyValues = flatArgs
-		.filter(isObject)
-		.map(objectToKV);
+let filterKeysToKV = compose(
+  map(keyToKV),
+  filterNot(isObject)
+);
 
-	if (objKeyValues.length) {
-		objKeyValues = objKeyValues
-			.reduce(flattenShallow);
-	}
+let argsToKV = compose(
+  combine,
+  filterSplit(
+    filterObjectsToKV,
+    filterKeysToKV
+  ),
+  flatten
+);
 
-	let stringKeyValues = flatArgs
-		.filter(notObject)
-		.map(keyToKV);
-
-	return stringKeyValues
-		.concat(objKeyValues)
-		.map(nullToUndefined);
-}
+export default argsToKV;

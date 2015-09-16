@@ -1,11 +1,13 @@
 import {
 	argsToKV, kvToObject, undefinedToMirror
 } from './utilities';
+import { compose, map, reduce } from 'fnutil/utils';
 
-export default function createConstants(...args) {
-	let constantsObj = argsToKV(args)
-		.map(undefinedToMirror)
-		.reduce(kvToObject);
+let createConstants = (...args) => compose(
+  Object.freeze,
+  reduce(kvToObject, {}),
+  map(undefinedToMirror),
+  argsToKV
+)(args);
 
-	return Object.freeze(constantsObj);
-};
+export default createConstants;
