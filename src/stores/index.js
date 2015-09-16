@@ -65,4 +65,6 @@ let TodoStore = createStore({
 	}
 });
 
+TodoStore.onValue(v => console.log('TodoStore', v));
+
 export default TodoStore;

@@ -22,12 +22,12 @@ let Actions = createActions({
 	}
 });
 
-Actions.create.listen(val => console.log(val));
-
 let promiseTest = val => new Promise((resolve, reject) => {
 	setTimeout(resolve, 5000, val);
 });
 
 Actions.testAsync.listenAndPromise(promiseTest);
+
+window.Actions = Actions;
 
 export default Actions;
