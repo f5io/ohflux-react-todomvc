@@ -11,6 +11,7 @@ let TodoStore = createStore({
 		filter: Constants.FILTER_ALL
 	}),
 	onCreate({ allTodos }, todo) {
+    console.log(arguments);
 		allTodos = allTodos.set(todo.get('id'), todo);
 		return { allTodos };
 	},

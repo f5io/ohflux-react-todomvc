@@ -9,5 +9,6 @@ export { default as keyToKV } from './keyToKV';
 export { default as kvToObjectWithModifier } from './kvToObjectWithModifier';
 export { default as kvToObject } from './kvToObject';
 export { default as objectToKV } from './objectToKV';
+export { default as symbols } from './symbols';
 export { default as toSentenceCase } from './toSentenceCase';
 export { default as undefinedToMirror } from './undefinedToMirror';
