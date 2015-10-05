@@ -1,3 +1,4 @@
 node_modules/
+public/scripts/prod.min.js
 npm-debug.log
 .DS_Store
