@@ -4,7 +4,7 @@ import { connect, compose } from 'ohflux';
 import TodoStore from '../stores';
 import Constants from '../constants';
 
-let deriveFilteredTodos = store => store.map(({ allTodos, filter}) => {
+let deriveFilteredTodos = store => store.map(({ allTodos, filter }) => {
   let filteredTodos;
   switch (filter) {
     case Constants.FILTER_ACTIVE:
