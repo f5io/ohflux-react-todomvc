@@ -1,5 +1,5 @@
 import Immutable from 'immutable';
-import { createActions } from '../core';
+import { createActions } from 'ohflux';
 import { uuid } from '../utilities';
 
 let notEmpty = str => str.trim().length;

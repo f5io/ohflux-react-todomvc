@@ -1,17 +1,15 @@
 import Actions from '../actions';
 import Immutable from 'Immutable';
 import Constants from '../constants';
-import { createStore } from '../core';
+import { createStore } from 'ohflux';
 
 let TodoStore = createStore({
 	actions: Actions,
 	getInitialState: () => ({
 		allTodos: Immutable.OrderedMap(),
-		filteredTodos: Immutable.OrderedMap(),
 		filter: Constants.FILTER_ALL
 	}),
 	onCreate({ allTodos }, todo) {
-    console.log(arguments);
 		allTodos = allTodos.set(todo.get('id'), todo);
 		return { allTodos };
 	},
@@ -49,23 +47,7 @@ let TodoStore = createStore({
 	onTestAsyncFailed(state, val) {
 		console.log('onTestAsyncFailed', val);
 		return state;
-	},
-	reducers({ allTodos, filteredTodos, filter }) {
-		switch (filter) {
-			case Constants.FILTER_ACTIVE:
-				filteredTodos = allTodos.filterNot(todo => todo.get('completed'));
-			break;
-			case Constants.FILTER_COMPLETE:
-				filteredTodos = allTodos.filter(todo => todo.get('completed'));
-			break;
-			default:
-				filteredTodos = allTodos;
-			break;
-		}
-		return { filteredTodos };
 	}
 });
-
-TodoStore.onValue(v => console.log('TodoStore', v));
 
 export default TodoStore;

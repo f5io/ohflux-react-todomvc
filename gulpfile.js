@@ -9,7 +9,7 @@ var gulp = require('gulp'),
 	source = require('vinyl-source-stream');
 
 gulp.task('scripts', function() {
-	return browserify({ debug: false })
+	return browserify({ debug: true })
 		.transform(babelify)
 		// .transform({
 		// 	global: true

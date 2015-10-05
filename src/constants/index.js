@@ -1,4 +1,4 @@
-import { createConstants } from '../core';
+import { createConstants } from 'ohflux';
 
 let Constants = createConstants([
 	'FILTER_ALL',
